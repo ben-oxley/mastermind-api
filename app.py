@@ -6,48 +6,44 @@ from enum import Enum
 
 app = FastAPI()
 games = {}
+usergames = {}
+userscores = {}
 
 @app.get("/")
 async def root():
     return {"message":"Set a user"}
 
-@app.get("/newgame")
-async def root():
+@app.get("/newgame/{user}")
+async def root(user):
     uid = str(uuid.uuid4())
-    games[uid] = newGameStart()
+    if usergames[user] is not None:
+        del games[usergames[user]]
+        userscores[user] = userscores[user] - 1
+    games[uid] = newGameStart(user)
+    usergames[user] = uid
     return {"game":uid}
 
 @app.get("/games")
 async def root():
     return list(games.keys())
 
+@app.get("/userscores")
+async def root():
+    return userscores
+
 @app.get("/guess/{game}/{a}/{b}/{c}/{d}")
 async def guess(game,a,b,c,d):
-    num_right_place = 0
-    num_right_place += games[game]['answer'][0]==a
-    num_right_place += games[game]['answer'][1]==b
-    num_right_place += games[game]['answer'][2]==c
-    num_right_place += games[game]['answer'][3]==d
-    arr = count(None, a)
-    arr = count(arr, b)
-    arr = count(arr, c)
-    arr = count(arr, d)
-    answerarr = count(None, games[game]['answer'][0])
-    answerarr = count(answerarr, games[game]['answer'][1])
-    answerarr = count(answerarr, games[game]['answer'][2])
-    answerarr = count(answerarr, games[game]['answer'][3])
-    num_right_colour = 0
-    for i in list(Colours):
-        if answerarr[str(i.name)] >= arr[str(i.name)] and arr[str(i.name)] > 0:
-            num_right_colour = num_right_colour + 1
     games[game]["move"] += 1
     results = check([a,b,c,d],games[game]['answer'])
+    if results[1] == 4:
+        del games[game]
+        userscores[game["user"]] = userscores[game["user"]] + 1
     return {"num_right_place":results[1],"num_right_colour":results[0],"guess":games[game]["move"]}
 
 def check(guess, answer):
     return sum(min(sum(1 for i in [guess[i] for i in [i for i in range(len(answer)) if guess[i] != answer[i]]] if i == c), sum(1 for i in [answer[i] for i in [i for i in range(len(answer)) if guess[i] != answer[i]]] if i == c)) for c in set(answer)), len(answer) - len([i for i in range(len(answer)) if guess[i] != answer[i]])
 
-def newGameStart():
+def newGameStart(user):
     return {
         "move":0,
         "answer":[
@@ -55,21 +51,9 @@ def newGameStart():
                 str(random.choice(list(Colours)).name),
                 str(random.choice(list(Colours)).name),
                 str(random.choice(list(Colours)).name)
-            ]
+            ],
+        "user":user
     }
-
-def count(arr,a):
-    if arr is None:
-        arr = {
-            str(Colours.a.name): 0,
-            str(Colours.b.name): 0,
-            str(Colours.c.name): 0,
-            str(Colours.d.name): 0,
-            str(Colours.e.name): 0,
-            str(Colours.f.name): 0,
-        }
-    arr[a]=arr[a]+1
-    return arr
     
 
 class Colours(Enum):
