@@ -41,11 +41,12 @@ async def root():
 async def guess(game,a,b,c,d):
     games[game]["move"] += 1
     results = check([a,b,c,d],games[game]['answer'])
+    moves = games[game]["move"]
     if results[1] == 4:
         del games[game]
         del usergames[games[game]["user"]]
-        userscores[games[game]["user"]] = userscores[games[game]["user"]] + 1
-    return {"num_right_place":results[1],"num_right_colour":results[0],"guess":games[game]["move"]}
+        userscores[games[game]["user"]] = userscores[games[game]["user"]] + 1.0/moves
+    return {"num_right_place":results[1],"num_right_colour":results[0],"guess":moves}
 
 def check(guess, answer):
     return sum(min(sum(1 for i in [guess[i] for i in [i for i in range(len(answer)) if guess[i] != answer[i]]] if i == c), sum(1 for i in [answer[i] for i in [i for i in range(len(answer)) if guess[i] != answer[i]]] if i == c)) for c in set(answer)), len(answer) - len([i for i in range(len(answer)) if guess[i] != answer[i]])
