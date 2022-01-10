@@ -17,6 +17,10 @@ async def root():
     games[uid] = newGameStart()
     return {"game":uid}
 
+@app.get("/games")
+async def root():
+    return games.keys()
+
 @app.get("/guess/{game}/{a}/{b}/{c}/{d}")
 async def guess(game,a,b,c,d):
     num_right_place = 0
