@@ -21,7 +21,7 @@ async def root(user,secret):
         usersecrets[user] = secret
 
 @app.get("/newgame/{user}/{secret}")
-async def root(user):
+async def root(user,secret):
     if user in usersecrets and usersecrets[user] == secret:
         uid = str(uuid.uuid4())
         if user in usergames.keys():
