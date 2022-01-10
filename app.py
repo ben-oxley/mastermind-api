@@ -43,9 +43,9 @@ async def guess(game,a,b,c,d):
     results = check([a,b,c,d],games[game]['answer'])
     moves = games[game]["move"]
     if results[1] == 4:
-        del games[game]
-        del usergames[games[game]["user"]]
         userscores[games[game]["user"]] = userscores[games[game]["user"]] + 1.0/moves
+        del usergames[games[game]["user"]]
+        del games[game]
     return {"num_right_place":results[1],"num_right_colour":results[0],"guess":moves}
 
 def check(guess, answer):
