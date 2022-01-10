@@ -24,7 +24,7 @@ async def root(user,secret):
 async def root(user,secret):
     if user in usersecrets and usersecrets[user] == secret:
         uid = str(uuid.uuid4())
-        if user in usergames.keys():
+        if user in usergames:
             del games[usergames[user]]
             userscores[user] = userscores[user] - 1
         if user not in userscores:
@@ -43,7 +43,8 @@ async def guess(game,a,b,c,d):
     results = check([a,b,c,d],games[game]['answer'])
     if results[1] == 4:
         del games[game]
-        userscores[game["user"]] = userscores[game["user"]] + 1
+        del usergames[games[game]["user"]]
+        userscores[games[game]["user"]] = userscores[games[game]["user"]] + 1
     return {"num_right_place":results[1],"num_right_colour":results[0],"guess":games[game]["move"]}
 
 def check(guess, answer):
