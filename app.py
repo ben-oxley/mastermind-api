@@ -19,7 +19,7 @@ async def root():
 
 @app.get("/games")
 async def root():
-    return games.keys()
+    return list(games.keys())
 
 @app.get("/guess/{game}/{a}/{b}/{c}/{d}")
 async def guess(game,a,b,c,d):
