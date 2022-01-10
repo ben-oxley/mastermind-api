@@ -8,24 +8,30 @@ app = FastAPI()
 games = {}
 usergames = {}
 userscores = {}
+usersecrets = {}
 
 @app.get("/")
 async def root():
     return {"message":"Set a user"}
 
-@app.get("/newgame/{user}")
-async def root(user):
-    uid = str(uuid.uuid4())
-    if usergames[user] is not None:
-        del games[usergames[user]]
-        userscores[user] = userscores[user] - 1
-    games[uid] = newGameStart(user)
-    usergames[user] = uid
-    return {"game":uid}
+@app.get("/newuser/{user}/{secret}")
+async def root(user,secret):
+     if user not in userscores:
+        userscores[user] = 0
+        usersecrets[user] = secret
 
-@app.get("/games")
-async def root():
-    return list(games.keys())
+@app.get("/newgame/{user}/{secret}")
+async def root(user):
+    if user in usersecrets and usersecrets[user] == secret:
+        uid = str(uuid.uuid4())
+        if user in usergames.keys():
+            del games[usergames[user]]
+            userscores[user] = userscores[user] - 1
+        if user not in userscores:
+            userscores[user] = 0
+        games[uid] = newGameStart(user)
+        usergames[user] = uid
+        return {"game":uid}
 
 @app.get("/userscores")
 async def root():
